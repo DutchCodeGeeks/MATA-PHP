@@ -1,4 +1,11 @@
 <?php
+/*
+Made by tkon99
+special thanks to:
+-tomsmeding (help with the code)
+-stipmonster (magister rooster API)
+--> github: https://github.com/tkon99/MATA-PHP
+*/
 function encodeURIComponent($str) {
     $revert = array('%21'=>'!', '%2A'=>'*', '%27'=>"'", '%28'=>'(', '%29'=>')');
     return strtr(rawurlencode($str), $revert);
@@ -166,6 +173,7 @@ foreach($days as $daynum=>$dayname){
 						switch($les["InfoType"]){
 						case 1:$outline[]="<b>Huiswerk</b>: ".$les["Inhoud"];break;
 						case 3:$outline[]="<b>Tentamen</b>: ".$les["Inhoud"];break;
+						case 4:$outline[]="<b>SO</b>: ".$les["Inhoud"];break;
 						default:$outline[]="<b>Onbekend(".$les["InfoType"].")</b>: ".$les["Inhoud"];
 						}
 						echo "<li>".implode(" - ",$outline)."</li>\n";
