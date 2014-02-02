@@ -171,10 +171,10 @@ foreach($days as $daynum=>$dayname){
 						if($les["Lesuur"]!=0)$outline[]=$les["Lesuur"];
 						if($les["VakAfkortingen"]!=NULL)$outline[]=$les["VakAfkortingen"];
 						switch($les["InfoType"]){
-						case 1:$outline[]="<b>Huiswerk</b>: ".$les["Inhoud"];break;
-						case 3:$outline[]="<b>Tentamen</b>: ".$les["Inhoud"];break;
-						case 4:$outline[]="<b>SO</b>: ".$les["Inhoud"];break;
-						default:$outline[]="<b>Onbekend(".$les["InfoType"].")</b>: ".$les["Inhoud"];
+						case 1:$outline[]="<b>Huiswerk</b>: ".utf8_decode($les["Inhoud"]);break;
+						case 3:$outline[]="<b>Tentamen</b>: ".utf8_decode($les["Inhoud"]);break;
+						case 4:$outline[]="<b>SO</b>: ".utf8_decode($les["Inhoud"]);break;
+						default:$outline[]="<b>Onbekend(".$les["InfoType"].")</b>: ".utf8_decode($les["Inhoud"]);
 						}
 						echo "<li>".implode(" - ",$outline)."</li>\n";
 						//echo "<li>".($les["Lesuur"]==0?NULL:$les["Lesuur"])." - ".$les["VakAfkortingen"]." - ".$les['Inhoud']."</li>";
