@@ -171,9 +171,9 @@ foreach($days as $daynum=>$dayname){
 						if($les["Lesuur"]!=0)$outline[]=$les["Lesuur"];
 						if($les["VakAfkortingen"]!=NULL)$outline[]=$les["VakAfkortingen"];
 						switch($les["InfoType"]){
-						case 1:$outline[]="<b>Huiswerk</b>: ".utf8_decode($les["Inhoud"]);break;
-						case 3:$outline[]="<b>Tentamen</b>: ".utf8_decode($les["Inhoud"]);break;
-						case 4:$outline[]="<b>SO</b>: ".utf8_decode($les["Inhoud"]);break;
+						case 1:$outline[]="<img src='https://mata-sgtongerlo.magister.net/Content/img/icon-huiswerk.png' width='32px' height='auto'> ".utf8_decode($les["Inhoud"]);break;
+						case 3:$outline[]="<img src='https://mata-sgtongerlo.magister.net/Content/img/blue-tentamen.png' width='32px' height='auto'> ".utf8_decode($les["Inhoud"]);break;
+						case 4:$outline[]="<img src='https://mata-sgtongerlo.magister.net/Content/img/blue-schriftelijk.png' width='32px' height='auto'> ".utf8_decode($les["Inhoud"]);break;
 						default:$outline[]="<b>Onbekend(".$les["InfoType"].")</b>: ".utf8_decode($les["Inhoud"]);
 						}
 						echo "<li>".implode(" - ",$outline)."</li>\n";
