@@ -118,7 +118,14 @@ ob_flush();
 ?>
 <br><hr>
 <?php
-$huiswerk="https://$urlname/api/leerlingen/$id/huiswerk/huiswerk";
+if(date("N")==6){ //if it's saturday
+	$monday=strtotime("Monday");
+	$friday=strtotime("Friday");
+} else {
+	$monday=strtotime("Monday this week");
+	$friday=strtotime("Friday this week");
+}
+$huiswerk="https://$urlname/api/leerlingen/$id/huiswerk/huiswerk?van=".date("Y-m-d",$monday)."T00:00&tot=".date("Y-m-d",$friday)."T23:59&groupBy=Dag";
 $ref="https://$urlname/";
 //$strCookie="SESSION_ID=$session";
 
@@ -153,7 +160,16 @@ foreach($days as $daynum=>$dayname){
 				foreach($item as $les){
 					$datum = date('N',strtotime(array_shift(explode('T',$les["Datum"]))));
 					if($datum == "$daynum"){
-						echo "<li>".$les["Lesuur"]." - ".$les["VakAfkortingen"]." - ".$les['Inhoud']."</li>";
+						$outline=array();
+						if($les["Lesuur"]!=0)$outline[]=$les["Lesuur"];
+						if($les["VakAfkortingen"]!=NULL)$outline[]=$les["VakAfkortingen"];
+						switch($les["InfoType"]){
+						case 1:$outline[]="<b>Huiswerk</b>: ".$les["Inhoud"];break;
+						case 3:$outline[]="<b>Tentamen</b>: ".$les["Inhoud"];break;
+						default:$outline[]="<b>Onbekend(".$les["InfoType"].")</b>: ".$les["Inhoud"];
+						}
+						echo "<li>".implode(" - ",$outline)."</li>\n";
+						//echo "<li>".($les["Lesuur"]==0?NULL:$les["Lesuur"])." - ".$les["VakAfkortingen"]." - ".$les['Inhoud']."</li>";
 					}
 				}
 			}
