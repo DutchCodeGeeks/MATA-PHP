@@ -7,6 +7,7 @@ PHP class used to retrieve data from schoolmaster's magister, using their own AP
 * URL lookup
 * Name, id etc.
 * Homework
+* Studiewijzer *(almost done)*
 * ~~ELO~~
 * ~~Messages~~
 
