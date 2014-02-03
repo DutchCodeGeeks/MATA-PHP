@@ -21,6 +21,14 @@ function encodeURIComponent($str) {
     return strtr(rawurlencode($str), $revert);
 }
 
+function decode($string){
+	$string = utf8_decode($string);
+	$string = preg_replace('/([a-z])([A-Z])/', '$1 $2', $string);
+	$string = preg_replace('/([[:lower:]])([[:upper:]])/', '$1 $2', $string);
+	$string = str_replace('  ', ' ', $string);
+	return $string;
+}
+
 $path = __FILE__;
 $this_file_name = basename($path);
 if(array_key_exists("getschoolname",$_GET)){
@@ -182,9 +190,9 @@ foreach($days as $daynum=>$dayname){
 						if($les["Lesuur"]!=0)$outline[]=$les["Lesuur"];
 						if($les["VakAfkortingen"]!=NULL)$outline[]=$les["VakAfkortingen"];
 						switch($les["InfoType"]){
-						case 1:$outline[]="<img src='https://mata-sgtongerlo.magister.net/Content/img/icon-huiswerk.png' width='32px' height='auto'> ".utf8_decode($les["Inhoud"]);break;
-						case 3:$outline[]="<img src='https://mata-sgtongerlo.magister.net/Content/img/blue-tentamen.png' width='32px' height='auto'> ".utf8_decode($les["Inhoud"]);break;
-						case 4:$outline[]="<img src='https://mata-sgtongerlo.magister.net/Content/img/blue-schriftelijk.png' width='32px' height='auto'> ".utf8_decode($les["Inhoud"]);break;
+						case 1:$outline[]="<img src='https://mata-sgtongerlo.magister.net/Content/img/icon-huiswerk.png' width='32px' height='auto'> ".decode($les["Inhoud"]);break;
+						case 3:$outline[]="<img src='https://mata-sgtongerlo.magister.net/Content/img/blue-tentamen.png' width='32px' height='auto'> ".decode($les["Inhoud"]);break;
+						case 4:$outline[]="<img src='https://mata-sgtongerlo.magister.net/Content/img/blue-schriftelijk.png' width='32px' height='auto'> ".decode($les["Inhoud"]);break;
 						default:$outline[]="<b>Onbekend(".$les["InfoType"].")</b>: ".utf8_decode($les["Inhoud"]);
 						}
 						echo "<li>".implode(" - ",$outline)."</li>\n";
