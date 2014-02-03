@@ -6,12 +6,23 @@ special thanks to:
 -stipmonster (magister rooster API)
 --> github: https://github.com/tkon99/MATA-PHP
 */
+
+
+//studiewijzer download code
+if(!empty($_GET["studie"])){
+	$id = $_GET["studie"];
+	echo("ID = $id");
+	echo("<br><i>To-do: download</i>");
+	}else{
+//einde studiewijzer download code
+
 function encodeURIComponent($str) {
     $revert = array('%21'=>'!', '%2A'=>'*', '%27'=>"'", '%28'=>'(', '%29'=>')');
     return strtr(rawurlencode($str), $revert);
 }
 
-$this_file_name="mata-beta.php";
+$path = __FILE__;
+$this_file_name = basename($path);
 if(array_key_exists("getschoolname",$_GET)){
 	$ch = curl_init();
 	curl_setopt ($ch, CURLOPT_URL, "https://schoolkiezer.magister.net/home/query?filter=".encodeURIComponent($_GET["name"]));
@@ -151,11 +162,11 @@ $result = json_decode($result, true);
 ?>
 <pre>
 <?php
-var_dump($result);
+//var_dump($result);
 ob_flush();
 ?>
 </pre>
-<br><hr><br><br>
+<br><h1>Huiswerk:</h1><br><br>
 <?php
 $days=array(1=>"Maandag",2=>"Dinsdag",3=>"Woensdag",4=>"Donderdag",5=>"Vrijdag");
 //var_dump($result["Items"]["1"]["Items"][0]);
@@ -188,6 +199,52 @@ foreach($days as $daynum=>$dayname){
 //echo($result["Items"]["0"]["Items"][0]["Lesuur"]);
 
 curl_close($ch);
+
+
+/*
+EINDE HUISWERK
+
+
+BEGIN STUDIEWIJZERS
+*/
 ?>
+<hr><h1>Studiewijzers:</h1><br>
+<ul>
+<?php
+$studie="https://$urlname/api/leerlingen/$id/studiewijzers?".'$skip=0&$top=50';
+$ref="https://$urlname/";
+//$strCookie="SESSION_ID=$session";
+
+$ch = curl_init();
+curl_setopt ($ch, CURLOPT_URL, $studie);
+curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+curl_setopt ($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6");
+curl_setopt ($ch, CURLOPT_TIMEOUT, 60);
+curl_setopt ($ch, CURLOPT_FOLLOWLOCATION, 1);
+curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt ($ch, CURLOPT_COOKIEFILE, $cookie);
+curl_setopt ($ch, CURLOPT_REFERER, $ref);
+
+$result = curl_exec ($ch);
+$result = json_decode($result, true);
+
+//var_dump($result);
+	foreach($result as $items){
+			foreach($items as $item){
+				$url = $this_file_name;
+				$url .= "?studie=";
+				$url .= $item["Id"];
+				$title = $item["Titel"];
+				if(!empty($title)){
+				echo("<li><a href='$url'>$title</a></li>");
+				}
+			}
+		}
+?>
+<?php
+//else end
+}
+?>
+</ul>
 </body>
 </html>
