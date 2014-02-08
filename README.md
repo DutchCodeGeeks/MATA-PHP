@@ -2,6 +2,8 @@ MATA-PHP
 ========
 PHP class used to retrieve data from schoolmaster's magister, using their own API.
 
+For a C# implementation of the API: https://github.com/lieuwex/MataSharp
+
 **Features:**
 * Session
 * URL lookup
