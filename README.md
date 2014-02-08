@@ -4,6 +4,8 @@ PHP class used to retrieve data from schoolmaster's magister, using their own AP
 
 For a C# implementation of the API: https://github.com/lieuwex/MataSharp
 
+Development discussion: https://github.com/tkon99/MATA-PHP/issues/3
+
 **Features:**
 
 * Session
