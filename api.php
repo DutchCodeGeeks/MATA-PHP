@@ -1,5 +1,18 @@
-<?php 
+<?php
+class School{
+	public $name;
+	public $url;
+	public function __construct($n,$u){
+		$this->set($n,$u);
+	}
+	public function set($n,$u){
+		$this->name=$n;
+		$this->url=$u;
+	}
+}
+
 class Mataphp{
+	private $cookie_file_name=".mata-php.api.cookie.txt";
 	private function curlget($url,$usecookie=false,$postdata=""){
 		$referer=parse_url($url);
 		if($referer){
@@ -14,7 +27,7 @@ class Mataphp{
 		curl_setopt($ch,CURLOPT_TIMEOUT,60);
 		curl_setopt($ch,CURLOPT_FOLLOWLOCATION,1);
 		curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
-		if($usecookie)curl_setopt($ch,CURLOPT_COOKIEJAR,".mata-php.api.cookie.txt");
+		if($usecookie)curl_setopt($ch,CURLOPT_COOKIEJAR,$cookie_file_name);
 		curl_setopt($ch,CURLOPT_REFERER,$referer);
 		if($postdata!=""){
 			curl_setopt($ch,CURLOPT_POSTFIELDS,$postdata);
@@ -32,13 +45,11 @@ class Mataphp{
 		$revert=array('%21'=>'!','%2A'=>'*','%27'=>"'",'%28'=>'(','%29'=>')');
 		return strtr(rawurlencode($str),$revert);
 	}
-	public static function getSchoolName($filter){
+	public static function getSchools($filter){
 		$result=self::curlget("https://schoolkiezer.magister.net/home/query?filter=".self::encodeURIComponent($filter));
-		if($result[0]=="<")throw new Exception("Mataphp:getSchoolName:invalid_server_response, server returned invalid response");
+		if($result[0]=="<")throw new Exception("Mataphp:getSchools:invalid_server_response, server returned invalid response");
 		$result=json_decode($result);
-		foreach($result as &$item){
-			$item=array("name"=>$item->Licentie,"url"=>$item->Url);
-		}
+		foreach($result as &$item)$item=new School($item->Licentie,$item->Url);
 		return $result;
 	}
 }
