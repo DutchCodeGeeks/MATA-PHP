@@ -1,5 +1,5 @@
 <?php
 require "api.php";
-$schools=Mataphp::getSchools("Dalton");
+$schools=mataphp\getSchools("dalton");
 var_dump($schools);
 ?>

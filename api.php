@@ -1,18 +1,34 @@
 <?php
+namespace mataphp;
 class School{
 	public $name;
 	public $url;
-	public function __construct($n,$u){
-		$this->set($n,$u);
-	}
+	public function __construct($n,$u){$this->set($n,$u);}
 	public function set($n,$u){
 		$this->name=$n;
 		$this->url=$u;
 	}
 }
 
+class Session{
+	public $school; //of type School
+	public $username;
+	public $password; //lol, public password...
+	public $userId;
+	public $sessionId;
+	public function __construct($s,$u,$p,$uid,$sid){$this->set($s,$u,$p,$uid,$sid);}
+	public function set($s,$u,$p,$uid,$sid){
+		$this->$school=$s;
+		$this->$username=$u;
+		$this->$password=$p;
+		$this->$userId=$uid;
+		$this->$sessionId=$sid;
+	}
+}
+
 class Mataphp{
 	private $cookie_file_name=".mata-php.api.cookie.txt";
+	//Passing $postdata implies a POST request. Otherwise, a GET request is issued.
 	private function curlget($url,$usecookie=false,$postdata=""){
 		$referer=parse_url($url);
 		if($referer){
@@ -53,4 +69,6 @@ class Mataphp{
 		return $result;
 	}
 }
+
+function getSchools($filter){return Mataphp::getSchools($filter);}
 ?>
