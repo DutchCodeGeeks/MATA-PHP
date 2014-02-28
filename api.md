@@ -15,6 +15,6 @@ Here are some random notes about the API, not yet structured.
   - **Properties**: `name`, `url`.
   - **Functions**: `__constructor()` mirrors `set()`, `set($name,$url)`.
 - `Session`: holds the data for a session. Returned by `login()` and required by functions dealing with a logged in session.
-  - **Usage**: One does not need to access properties of objects of this class. You just have to pass it on to API functions.
-  - **Properties**: `school`, `username`, `password`, `userId`, `sessionId`.
-  - **Functions**: `__constructor()` mirrors `set()`, `set($school,$username,$password,$userId,$sessionId)`.
+  - **Usage**: Apart from `realName`, which could be useful, one does not need to access properties of objects of this class. You just have to pass it on to API functions.
+  - **Properties**: `school`, `userId`, `realName`.
+  - **Functions**: `__constructor()` mirrors `set()`, `set($school,$userId,$realName)`.

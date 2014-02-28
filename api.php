@@ -1,8 +1,7 @@
 <?php
 namespace mataphp;
 class School{
-	public $name;
-	public $url;
+	public $name,$url;
 	public function __construct($n,$u){$this->set($n,$u);}
 	public function set($n,$u){
 		$this->name=$n;
@@ -12,22 +11,18 @@ class School{
 
 class Session{
 	public $school; //of type School
-	public $username;
-	public $password; //lol, public password...
 	public $userId;
-	public $sessionId;
-	public function __construct($s,$u,$p,$uid,$sid){$this->set($s,$u,$p,$uid,$sid);}
-	public function set($s,$u,$p,$uid,$sid){
-		$this->$school=$s;
-		$this->$username=$u;
-		$this->$password=$p;
-		$this->$userId=$uid;
-		$this->$sessionId=$sid;
+	public $realName; //of user
+	public function __construct($s,$u,$n){$this->set($s,$u,$n);}
+	public function set($s,$u,$n){
+		$this->school=$s;
+		$this->userId=$u;
+		$this->realName=$n;
 	}
 }
 
 class Mataphp{
-	private $cookie_file_name=".mata-php.api.cookie.txt";
+	private static $cookie_file_name=".mata-php.api.cookie.txt";
 	//Passing $postdata implies a POST request. Otherwise, a GET request is issued.
 	private function curlget($url,$usecookie=false,$postdata=""){
 		$referer=parse_url($url);
@@ -43,18 +38,18 @@ class Mataphp{
 		curl_setopt($ch,CURLOPT_TIMEOUT,60);
 		curl_setopt($ch,CURLOPT_FOLLOWLOCATION,1);
 		curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
-		if($usecookie)curl_setopt($ch,CURLOPT_COOKIEJAR,$cookie_file_name);
+		if($usecookie)curl_setopt($ch,CURLOPT_COOKIEJAR,self::$cookie_file_name);
 		curl_setopt($ch,CURLOPT_REFERER,$referer);
 		if($postdata!=""){
 			curl_setopt($ch,CURLOPT_POSTFIELDS,$postdata);
 			curl_setopt($ch,CURLOPT_POST,1);
 		}
-		$f=fopen("/Users/Tom/Sites/Site/utilscurllog.txt","a"); ##DEBUG
-		fwrite($f,"url=$url\nusecookie=$usecookie\npostdata=$postdata\nreferer=$referer\n"); ##DEBUG
+		//$f=fopen("/Users/Tom/Sites/Site/utilscurllog.txt","a"); ##DEBUG
+		//fwrite($f,"url=$url\nusecookie=$usecookie\npostdata=$postdata\nreferer=$referer\n"); ##DEBUG
 		$result=curl_exec($ch);
 		curl_close($ch);
-		fwrite($f,"result=$result\n\n"); ##DEBUG
-		fclose($f); ##DEBUG
+		//fwrite($f,"result=$result\n\n"); ##DEBUG
+		//fclose($f); ##DEBUG
 		return $result;
 	}
 	private function encodeURIComponent($str){
@@ -68,7 +63,15 @@ class Mataphp{
 		foreach($result as &$item)$item=new School($item->Licentie,$item->Url);
 		return $result;
 	}
+	public static function login($school,$username,$password){
+		$result=self::curlget("https://".$school->url."/api/sessie",true,"Gebruikersnaam=".$username."&Wachtwoord=".$password);
+		$result=json_decode($result,true);
+		//TODO: check for failed login!!!!!
+		//var_dump($result); ##DEBUG
+		return new Session($school,$result["GebruikersId"],$result["Naam"]);
+	}
 }
 
 function getSchools($filter){return Mataphp::getSchools($filter);}
+function login($school,$username,$password){return Mataphp::login($school,$username,$password);}
 ?>

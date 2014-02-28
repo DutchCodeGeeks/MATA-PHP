@@ -84,7 +84,7 @@ function writeLoginform(){
 }
 
 function doLogin(){
-	global $username,$password,$urlname,$userId,$session;
+	global $username,$password,$urlname,$userId;
 	echo "Mata-site is: ".$urlname."<br>";
 	$result=curlget("https://$urlname/api/sessie",true,"Gebruikersnaam=".$username."&Wachtwoord=".$password);
 
