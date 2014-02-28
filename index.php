@@ -14,7 +14,7 @@ require "utils.php";
 $this_file_name = basename(__FILE__);
 
 function writeHomework(){
-	global $urlname;
+	global $urlname,$userId;
 	if(date("N")==6){ //if it's saturday
 		$monday=strtotime("Monday");
 		$friday=strtotime("Friday");
@@ -22,11 +22,11 @@ function writeHomework(){
 		$monday=strtotime("Monday this week");
 		$friday=strtotime("Friday this week");
 	}
-	$result=curlget("https://$urlname/api/leerlingen/$id/huiswerk/huiswerk?van=".date("Y-m-d",$monday)."T00:00&tot=".date("Y-m-d",$friday)."T23:59&groupBy=Dag",true);
-	/*echo "<pre>";
+	$result=curlget("https://$urlname/api/leerlingen/$userId/huiswerk/huiswerk?van=".date("Y-m-d",$monday)."T00:00&tot=".date("Y-m-d",$friday)."T23:59&groupBy=Dag",true);
+	echo "<pre>";
 	var_dump($result);
 	ob_flush();
-	echo "</pre>\n";*/
+	echo "</pre>\n";
 	echo "<h1>Huiswerk:</h1>\n";
 
 	$days=array(1=>"Maandag",2=>"Dinsdag",3=>"Woensdag",4=>"Donderdag",5=>"Vrijdag");
@@ -60,11 +60,9 @@ function writeHomework(){
 }
 
 function writeSchedules(){
-	global $urlname;
-	$id = $_GET["studie"];
+	global $urlname,$userId;
 	echo "<h1>Studiewijzers</h1>\n";
-	echo("ID = $id<br>");
-	$result=curlget('https://$urlname/api/leerlingen/$id/studiewijzers?$skip=0&$top=50',true);
+	$result=curlget("https://$urlname/api/leerlingen/$userId/studiewijzers?\$skip=0&\$top=50",true);
 	$result=json_decode($result,true);
 	echo "<ul>\n";
 	foreach($result as $items){
@@ -86,17 +84,17 @@ function writeLoginform(){
 }
 
 function doLogin(){
-	global $username,$password,$urlname;
+	global $username,$password,$urlname,$userId,$session;
 	echo "Mata-site is: ".$urlname."<br>";
 	$result=curlget("https://$urlname/api/sessie",true,"Gebruikersnaam=".$username."&Wachtwoord=".$password);
 
 	$result=json_decode($result,true);
 	$naam=$result["Naam"];
-	$id=$result["GebruikersId"];
+	$userId=$result["GebruikersId"];
 	$session=$result["SessieId"];
 	$msg=$result["Message"];
 
-	echo("Welkom, $naam<br>Uw gebruikersId is: $id<br>Uw sessie is: $session<br>Bericht: $msg");
+	echo("Welkom, $naam<br>\nUw gebruikersId is: $userId<br>\nUw sessie is: $session<br>\nBericht: $msg\n");
 	ob_flush();
 }
 

@@ -6,7 +6,7 @@ function curlget($url,$usecookie=false,$postdata=""){
 		throw new Exception("Invalid url given in curlget(\"$url\",$usecookie,\"$postdata\")");
 	}
 	$ch=curl_init();
-	curl_setopt($ch,CURLOPT_URL,"https://schoolkiezer.magister.net/home/query?filter=".encodeURIComponent($_GET["name"]));
+	curl_setopt($ch,CURLOPT_URL,$url);
 	curl_setopt($ch,CURLOPT_SSL_VERIFYPEER,FALSE);
 	curl_setopt($ch,CURLOPT_USERAGENT,"Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6");
 	curl_setopt($ch,CURLOPT_TIMEOUT,60);
@@ -18,8 +18,12 @@ function curlget($url,$usecookie=false,$postdata=""){
 		curl_setopt($ch,CURLOPT_POSTFIELDS,$postdata);
 		curl_setopt($ch,CURLOPT_POST,1);
 	}
+	$f=fopen("/Users/Tom/Sites/Site/utilscurllog.txt","a");
+	fwrite($f,"url=$url\nusecookie=$usecookie\npostdata=$postdata\nreferer=$referer\n");
 	$result=curl_exec($ch);
 	curl_close($ch);
+	fwrite($f,"result=$result\n\n");
+	fclose($f);
 	return $result;
 }
 
