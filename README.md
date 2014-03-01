@@ -6,6 +6,8 @@ For a C# implementation of the API: https://github.com/lieuwex/MataSharp
 
 Development discussion: https://github.com/tkon99/MATA-PHP/issues/3
 
+For API documentation: https://github.com/tkon99/MATA-PHP/blob/master/api.md
+
 **Features:**
 
 * Session
