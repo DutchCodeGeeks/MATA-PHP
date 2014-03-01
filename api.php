@@ -11,20 +11,22 @@ class School{
 
 class Session{
 	public $school; //of type School
-	public $userId;
+	public $userId,$sessionId;
 	public $realName; //of user
-	public function __construct($s,$u,$n){$this->set($s,$u,$n);}
-	public function set($s,$u,$n){
+	public function __construct($s,$uid,$sid,$n){$this->set($s,$uid,$sid,$n);}
+	public function set($s,$uid,$sid,$n){
 		$this->school=$s;
-		$this->userId=$u;
+		$this->userId=$uid;
+		$this->sessionId=$sid; //not the one returned from the login request, but an internal identifier!
 		$this->realName=$n;
 	}
 }
 
 class Mataphp{
-	private static $cookie_file_name=".mata-php.api.cookie.txt";
-	//Passing $postdata implies a POST request. Otherwise, a GET request is issued.
-	private function curlget($url,$usecookie=false,$postdata=""){
+	private static $cookie_file_base=".mata-php.api.cookie.";
+	//Passing a non-empty $postdata implies a POST reques; otherwise, a GET request is issued.
+	//Passing $cookie_id implies using cookies; the id allows the use of multiple sessions at the same time.
+	private function curlget($url,$cookie_id="",$postdata=""){
 		$referer=parse_url($url);
 		if($referer){
 			$referer=$referer["scheme"]."://".$referer["host"];
@@ -38,7 +40,7 @@ class Mataphp{
 		curl_setopt($ch,CURLOPT_TIMEOUT,60);
 		curl_setopt($ch,CURLOPT_FOLLOWLOCATION,1);
 		curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
-		if($usecookie)curl_setopt($ch,CURLOPT_COOKIEJAR,self::$cookie_file_name);
+		if($cookie_id&&$cookie_id!="")curl_setopt($ch,CURLOPT_COOKIEJAR,self::$cookie_file_base.$cookie_id);
 		curl_setopt($ch,CURLOPT_REFERER,$referer);
 		if($postdata!=""){
 			curl_setopt($ch,CURLOPT_POSTFIELDS,$postdata);
@@ -64,11 +66,12 @@ class Mataphp{
 		return $result;
 	}
 	public static function login($school,$username,$password){
-		$result=self::curlget("https://".$school->url."/api/sessie",true,"Gebruikersnaam=".$username."&Wachtwoord=".$password);
+		$sessionId=uniqid();
+		$result=self::curlget("https://".$school->url."/api/sessie",$sessionId,"Gebruikersnaam=".$username."&Wachtwoord=".$password);
 		$result=json_decode($result,true);
-		//TODO: check for failed login!!!!!
-		//var_dump($result); ##DEBUG
-		return new Session($school,$result["GebruikersId"],$result["Naam"]);
+		if(!array_key_exists("GebruikersId",$result)||$result["Message"]!="Succesvol ingelogd.")return false;
+		var_dump($result); ##DEBUG
+		return new Session($school,$result["GebruikersId"],$sessionId,$result["Naam"]);
 	}
 }
 
