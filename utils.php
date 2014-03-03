@@ -12,18 +12,17 @@ function curlget($url,$usecookie=false,$postdata=""){
 	curl_setopt($ch,CURLOPT_TIMEOUT,60);
 	curl_setopt($ch,CURLOPT_FOLLOWLOCATION,1);
 	curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
-	if($usecookie)curl_setopt($ch,CURLOPT_COOKIEJAR,".cookie.txt");
+	if($usecookie){
+		curl_setopt($ch,CURLOPT_COOKIEJAR,".cookie.txt");
+		curl_setopt($ch,CURLOPT_COOKIEFILE,".cookie.txt");
+	}
 	curl_setopt($ch,CURLOPT_REFERER,$referer);
 	if($postdata!=""){
 		curl_setopt($ch,CURLOPT_POSTFIELDS,$postdata);
 		curl_setopt($ch,CURLOPT_POST,1);
 	}
-	$f=fopen("/Users/Tom/Sites/Site/utilscurllog.txt","a");
-	fwrite($f,"url=$url\nusecookie=$usecookie\npostdata=$postdata\nreferer=$referer\n");
 	$result=curl_exec($ch);
 	curl_close($ch);
-	fwrite($f,"result=$result\n\n");
-	fclose($f);
 	return $result;
 }
 
