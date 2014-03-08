@@ -5,6 +5,8 @@ special thanks to:
 -tomsmeding (help with the code)
 -stipmonster (magister rooster API)
 --> github: https://github.com/tkon99/MATA-PHP
+DEPRECATED INDEX NOT USED IN NEW VERSION!
+ONLY HERE FOR API REFERENCE (E.G. URL'S)
 */
 
 //error_reporting(0);
