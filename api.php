@@ -1,6 +1,20 @@
 <?php
 namespace mataphp;
 define("_MATA_PHP_API_COOKIE_BASE_NAME",".mata-php.api.cookie.");
+
+//if we're running on a terminal, let's check for stray cookie files.
+if(posix_isatty(STDERR)){
+	$files=glob(_MATA_PHP_API_COOKIE_BASE_NAME."*");
+	if(count($files)>0){
+		file_put_contents("php://stderr","There ".(count($files)==1?"is ":"are ").count($files)." cookie file".(count($files)==1?"":"s")." left astray:\n",FILE_APPEND);
+		foreach($files as $file)echo "* ".$file."\n";
+		file_put_contents("php://stderr","Should th".(count($files)==1?"is":"ese")." be deleted? (y/n) ",FILE_APPEND);
+		if(trim(fgets(STDIN))=="y"){
+			foreach($files as $file)unlink($file);
+		}
+	}
+}
+
 class School{
 	public $name,$url;
 	public function __construct($n,$u){$this->set($n,$u);}
@@ -24,6 +38,30 @@ class Session{
 		$this->userId=$uid;
 		$this->sessionId=$sid; //not the one returned from the login request, but an internal identifier!
 		$this->realName=$n;
+	}
+}
+
+class Subject{
+	public $short,$long;
+	public function __construct($s,$l){$this->set($s,$l);}
+	public function set($s,$l){
+		$short=$s;
+		$long=$l;
+	}
+}
+
+class Homework{
+	public $date; //of type Date
+	public $subject; //of type Subject
+	public $description,$content,$hour,$type;
+	public function __construct($da,$s,$de,$c,$h,$t){$this->set($da,$s,$de,$c,$h,$t);}
+	public function set($da,$s,$de,$c,$h,$t){
+		$this->date=$da;
+		$this->subject=$s;
+		$this->description=$de;
+		$this->content=$c;
+		$this->hour=$h;
+		$this->type=$t;
 	}
 }
 
@@ -61,23 +99,48 @@ class Mataphp{
 		$revert=array('%21'=>'!','%2A'=>'*','%27'=>"'",'%28'=>'(','%29'=>')');
 		return strtr(rawurlencode($str),$revert);
 	}
+	private function convertInfoType($it){
+		switch($it){
+		case 1:return "huiswerk";
+		case 3:return "tentamen";
+		case 4:return "schriftelijk";
+		default:return "unknown";
+		}
+	}
 	public static function getSchools($filter){
+		if(ctype_space($filter)||strlen($filter)<3)return array();
 		$result=self::curlget("https://schoolkiezer.magister.net/home/query?filter=".self::encodeURIComponent($filter));
 		if($result[0]=="<")throw new \Exception("Mataphp:getSchools:invalid_server_response, server returned invalid response");
 		$result=json_decode($result);
 		foreach($result as &$item)$item=new School($item->Licentie,$item->Url);
 		return $result;
 	}
+	//pass dates of type Date
 	public static function getHomework($session,$fromdate,$todate){
-		$result=self::curlget("https://".$session->school->url."/api/leerlingen/".$session->userId."/huiswerk/huiswerk?van=".date_format($fromdate,"Y-m-d\TH:i:s")."&tot=".date_format($todate,"Y-m-d\TH:i:s")."&groupBy=Dag",$session->sessionId);
-		return $result;
+		$result=self::curlget("https://".$session->school->url."/api/leerlingen/".$session->userId."/huiswerk/huiswerk?van=".date_format($fromdate,"Y-m-d\TH:i:s")."&tot=".date_format($todate,"Y-m-d\TH:i:s"),$session->sessionId);
+		$result=json_decode($result,true);
+		$list=array();
+		foreach($result["Items"] as $itemgroup){
+			foreach($itemgroup["Items"] as $i){
+				$date=date_create($i["Datum"],timezone_open("UTC"));
+				date_timezone_set($date,timezone_open(date_default_timezone_get()));
+				$list[]=new Homework(
+					$date,
+					new Subject($i["VakAfkortingen"],$i["VakOmschrijvingen"]),
+					$i["Omschrijving"],
+					$i["Inhoud"],
+					$i["Lesuur"],
+					self::convertInfoType($i["InfoType"]));
+			}
+		}
+		return $list;
 	}
 	public static function login($school,$username,$password){
 		$sessionId=uniqid();
 		$result=self::curlget("https://".$school->url."/api/sessie",$sessionId,"Gebruikersnaam=".$username."&Wachtwoord=".$password);
 		$result=json_decode($result,true);
 		if(!array_key_exists("GebruikersId",$result)||$result["Message"]!="Succesvol ingelogd.")return false;
-		var_dump($result); ##DEBUG
+		//var_dump($result); ##DEBUG
 		return new Session($school,$result["GebruikersId"],$sessionId,$result["Naam"]);
 	}
 }

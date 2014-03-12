@@ -46,7 +46,7 @@ function writeHomework(){
 							case 1:$outline[]="<img src='https://mata-sgtongerlo.magister.net/Content/img/icon-huiswerk.png' width='32px' height='auto'> ".decode($les["Inhoud"]);break;
 							case 3:$outline[]="<img src='https://mata-sgtongerlo.magister.net/Content/img/blue-tentamen.png' width='32px' height='auto'> ".decode($les["Inhoud"]);break;
 							case 4:$outline[]="<img src='https://mata-sgtongerlo.magister.net/Content/img/blue-schriftelijk.png' width='32px' height='auto'> ".decode($les["Inhoud"]);break;
-							default:$outline[]="<b>Onbekend(".$les["InfoType"].")</b>: ".utf8_decode($les["Inhoud"]);
+							default:$outline[]="<b>Onbekend(".$les["InfoType"].")</b>: ".decode($les["Inhoud"]);
 							}
 							echo "<li>".implode(" - ",$outline)."</li>\n";
 							//echo "<li>".($les["Lesuur"]==0?NULL:$les["Lesuur"])." - ".$les["VakAfkortingen"]." - ".$les['Inhoud']."</li>";
