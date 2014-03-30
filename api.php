@@ -89,7 +89,7 @@ class Mataphp{
 		$result=self::curlget("https://".$school->url."/api/sessie",$sessionId,"Gebruikersnaam=".$username."&Wachtwoord=".$password);
 		$result=json_decode($result,true);
 		if(!array_key_exists("GebruikersId",$result)||$result["Message"]!="Succesvol ingelogd.")return false;
-		var_dump($result); ##DEBUG
+		//var_dump($result); ##DEBUG
 		return new Session($school,$result["GebruikersId"],$sessionId,$result["Naam"]);
 	}
 }
