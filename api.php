@@ -72,12 +72,24 @@ class Mataphp{
 		$result=self::curlget("https://".$session->school->url."/api/leerlingen/".$session->userId."/huiswerk/huiswerk?van=".date_format($fromdate,"Y-m-d\TH:i:s")."&tot=".date_format($todate,"Y-m-d\TH:i:s")."&groupBy=Dag",$session->sessionId);
 		return $result;
 	}
+	public static function getStudyGuidesList($session){
+		$result=self::curlget('https://'.$session->school->url.'/api/leerlingen/'.$session->userId.'/studiewijzers?$skip=0&$top=50',$session->sessionId);
+		return $result;
+	}
+	public static function getStudyGuideContent($session,$studyguideId){
+		$result=self::curlget("https://".$session->school->url."/api/leerlingen/".$session->userId."/studiewijzers/".$studyguideId,$session->sessionId);
+		return $result;
+	}
+	public static function getStudyGuideAttachments($session,$studyguideItemId){
+		$result=self::curlget("https://".$session->school->url.$studyguideItemId,$session->sessionId);
+		return $result;
+	}
 	public static function login($school,$username,$password){
 		$sessionId=uniqid();
 		$result=self::curlget("https://".$school->url."/api/sessie",$sessionId,"Gebruikersnaam=".$username."&Wachtwoord=".$password);
 		$result=json_decode($result,true);
 		if(!array_key_exists("GebruikersId",$result)||$result["Message"]!="Succesvol ingelogd.")return false;
-		var_dump($result); ##DEBUG
+		//var_dump($result); ##DEBUG
 		return new Session($school,$result["GebruikersId"],$sessionId,$result["Naam"]);
 	}
 }
@@ -85,4 +97,7 @@ class Mataphp{
 function getSchools($filter){return Mataphp::getSchools($filter);}
 function login($school,$username,$password){return Mataphp::login($school,$username,$password);}
 function getHomework($session,$fromdate,$todate){return Mataphp::getHomework($session,$fromdate,$todate);}
+function getStudyGuidesList($session){return Mataphp::getStudyGuidesList($session);}
+function getStudyGuideContent($session,$studyguideId){return Mataphp::getStudyGuideContent($session,$studyguideId);}
+function getStudyGuideAttachments($session,$studyguideItemId){return Mataphp::getStudyGuideAttachments($session,$studyguideItemId);}
 ?>
