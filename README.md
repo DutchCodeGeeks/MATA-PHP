@@ -17,7 +17,7 @@ For API documentation: https://github.com/tkon99/MATA-PHP/blob/master/api.md
 * URL lookup
 * Name, id etc.
 * Homework
-* Studiewijzer *(almost done)*
+* Studiewijzers + Automatic Attachments + Replacing Mata's hyperlinks with default HTML hyperlinks
 * ~~ELO~~
 * ~~Messages~~
 
@@ -34,3 +34,4 @@ For API documentation: https://github.com/tkon99/MATA-PHP/blob/master/api.md
 
 * **tomsmeding** - *for great help with the code*
 * **stipmonster** - *for his Magister Rooster API*
+* **MegaCookie** - *for his Studiewijzers API and code examples*
