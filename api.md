@@ -19,6 +19,21 @@ Here are some random notes about the API, not yet structured.
   - **Properties**: `school`, `userId`, `sessionId`, `realName`.
   - **Functions**: `__constructor()` mirrors `set()`, `set($school,$userId,$sessionId,$realName)`.
 
+- `StudyGuidesList`: holds the data for all Study Guides as a list. Returned by `getStudyGuidesList()`.
+  - **Usage**: It is not recommended to access this class directly. You just have to pass it a session to the `getStudyGuidesList()` function.
+  - **Properties**: `title`,`id`,`startDate`,`endDate`,`subject`.
+  - **Functions**: `__constructor()` mirrors `set()`, `set($title,$id,$startDate,$endDate,$subject)`.
+
+- `StudyGuideContent`: holds the data for all the content of a Study Guide. Returned by `getStudyGuideContent()`.
+  - **Usage**: It is not recommended to access this class directly. You just have to pass it a correct Study Guide Id and a session to the `getStudyGuideContent()` function.
+  - **Properties**: `title`,`content`,`attachments`
+  - **Functions**: `__constructor()` mirrors `set()`, `set($title,$content,$attachments)`.
+
+- `StudyGuideAttachments`: holds the data for all the attachments of a Study Guide Content Item. Required by `getStudyGuideContent()`.
+  - **Usage**: It is not recommended to access this class directly. You just have to pass it a correct Study Guide Id and a session to the `getStudyGuideContent` function and it will store the Attachments automatically.
+  - **Properties**: `title`,`type`,`url`
+  - **Functions**: `__constructor()` mirrors `set()`, `set($title,$type,$url)`.
+
 ###Functions
 
 - `getSchools($filter)`: polls the server for schools matching the filter.
@@ -31,3 +46,24 @@ Here are some random notes about the API, not yet structured.
     - `school`: which school to log in to, of type `School`
     - `username`: username for login
     - `password`: password for login
+- `getStudyGuidesList($filter)`: get all Study Guides as a list.
+  - **Returns**: array of `StudyGuidesList` items:
+    - `title`: the title of the Study Guide.
+    - `id`: the id of the Study Guide.
+    - `startDate`: the start date of the Study Guide.
+    - `endDate`: the end date of the Study Guide.
+    - `subject`: the subject of the Study Guide. NOTE: We don't have currently a list with all possible subjects.
+  - **Parameters**:
+    - `$session`: just the given session you've got from the `login()` function.
+    - `filter`: the search string to search for.
+- `getStudyGuideContent($session,$studyguideId)`: get all the content, all hyperlinks and all attachments of a Study Guide item.
+  - **Returns**: array of `StudyGuideContent` items:
+    - `title`: the title of a Study Guide Content item. 
+    - `content`: the content of a Study Guide Content item. May contains fixed hyperlinks in plain HTML format.
+    - `attachments`: array of `StudyGuideAttachments` items:
+      - `title`: the title of the attachment.
+      - `type`: the type of the attachment. 1 = Just a normal attachment, 2 = An assignment, 3 = A website, 4 = A Youtube Video.
+      - `url`: the URL of the attachment.
+  - **Parameters**:
+    - `$session`: just the given session you've got from the `login()` function.
+    - `$studyguideId`: the Id of a Study Guide, you could use one from the `getStudyGuidesList()` function.
