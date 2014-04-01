@@ -176,7 +176,7 @@ class Mataphp{
 		date_timezone_set($startDate,timezone_open(date_default_timezone_get()));
 		$endDate=date_create($items["TotEnMet"],timezone_open("UTC"));
 		date_timezone_set($endDate,timezone_open(date_default_timezone_get()));
-		$list[]=new StudyGuidesList($items["Titel"],$items["Id"],$startDate,$endDate,["VakCodes"][0]);
+		$list[]=new StudyGuidesList($items["Titel"],$items["Id"],$startDate,$endDate,$items["VakCodes"][0]);
 		}
 		return $list;
 	}
