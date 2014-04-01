@@ -29,17 +29,17 @@ var_dump(mataphp\getStudyGuidesList($session)); //Get All Study Guides
 	$StudyGuideId=421; //!!!*** IMPORTANT TO MAKE IT WORK: Change this Id to a correct StudyGuide Id. You could call one from the StudyGuidesList
 	$StudyGuideContent = (mataphp\getStudyGuideContent($session,$StudyGuideId));
 	$StudyGuideContentResult=json_decode($StudyGuideContent,true);
-    foreach($StudyGuideContentResult as $items){
-    	echo('<div><h1>'.$items->title.'</h1>'); 
-        echo'<p>'.$items->content.'</p>';
-        foreach ($items->attachments as $attachmentItem) {
-            if($attachmentItem->type == 1){echo('---Attachment: <a href="'.$attachmentItem->url.'" target="_blank">'.$attachmentItem->title.'</a><br>');
-            }elseif($attachmentItem->type == 2){echo('---Assignment Attachment: <a href="'.$attachmentItem->url.'" target="_blank">'.$attachmentItem->title.'</a><br>');
-            }elseif($attachmentItem->type == 3){echo('---Attachment: <a href="'.$attachmentItem->url.'" target="_blank">'.$attachmentItem->title.'</a><br>');
-            }else{echo('---Youtube Attachment: <a href="'.$attachmentItem->url.'" target="_blank">'.$attachmentItem->title.'</a><br>');
-            }
-         }
-    	echo'</div>'; 
-    }
-                
+	foreach($StudyGuideContentResult as $items){
+		echo('<div><h1>'.$items->title.'</h1>'); 
+		echo'<p>'.$items->content.'</p>';
+		foreach ($items->attachments as $attachmentItem) {
+			if($attachmentItem->type == 1){echo('---Attachment: <a href="'.$attachmentItem->url.'" target="_blank">'.$attachmentItem->title.'</a><br>');
+			}elseif($attachmentItem->type == 2){echo('---Assignment Attachment: <a href="'.$attachmentItem->url.'" target="_blank">'.$attachmentItem->title.'</a><br>');
+			}elseif($attachmentItem->type == 3){echo('---Attachment: <a href="'.$attachmentItem->url.'" target="_blank">'.$attachmentItem->title.'</a><br>');
+			}else{echo('---Youtube Attachment: <a href="'.$attachmentItem->url.'" target="_blank">'.$attachmentItem->title.'</a><br>');
+			}
+		 }
+		echo'</div>'; 
+	}
+				
 ?>
