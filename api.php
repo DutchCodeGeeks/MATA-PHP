@@ -65,6 +65,38 @@ class Homework{
 	}
 }
 
+class StudyGuidesList{
+	public $title,$id,$startDate,$endDate,$subject;
+	public function __construct($ti,$i,$sd,$ed,$su){$this->set($ti,$i,$sd,$ed,$su);}
+	public function set($ti,$i,$sd,$ed,$su){
+		$this->title=$ti;
+		$this->id=$i;
+		$this->startDate=$sd;
+		$this->endDate=$ed;
+		$this->subject=$su;
+	}
+}
+
+class StudyGuideContent{
+	public $title,$content,$attachments;
+	public function __construct($ti,$co,$at){$this->set($ti,$co,$at);}
+	public function set($ti,$co,$at){
+		$this->title=$ti;
+		$this->content=$co;
+		$this->attachments=$at;
+	}
+}
+
+class StudyGuideAttachments{
+	public $title,$type,$url;
+	public function __construct($ti,$ty,$ur){$this->set($ti,$ty,$ur);}
+	public function set($ti,$ty,$ur){
+		$this->title=$ti;
+		$this->type=$ty;
+		$this->url=$ur;
+	}
+}
+
 class Mataphp{
 	//Passing a non-empty $postdata implies a POST reques; otherwise, a GET request is issued.
 	//Passing $cookie_id implies using cookies; the id allows the use of multiple sessions at the same time.
@@ -137,15 +169,37 @@ class Mataphp{
 	}
 	public static function getStudyGuidesList($session){
 		$result=self::curlget('https://'.$session->school->url.'/api/leerlingen/'.$session->userId.'/studiewijzers?$skip=0&$top=50',$session->sessionId);
-		return $result;
+		$result=json_decode($result,true);
+		$list=array();
+		foreach($result["Items"] as $items){
+		$startDate=date_create($items["Van"],timezone_open("UTC"));
+		date_timezone_set($startDate,timezone_open(date_default_timezone_get()));
+		$endDate=date_create($items["TotEnMet"],timezone_open("UTC"));
+		date_timezone_set($endDate,timezone_open(date_default_timezone_get()));
+		$list[]=new StudyGuidesList($items["Titel"],$items["Id"],$startDate,$endDate,$items["VakCodes"][0]);
+		}
+		return $list;
 	}
 	public static function getStudyGuideContent($session,$studyguideId){
 		$result=self::curlget("https://".$session->school->url."/api/leerlingen/".$session->userId."/studiewijzers/".$studyguideId,$session->sessionId);
-		return $result;
-	}
-	public static function getStudyGuideAttachments($session,$studyguideItemId){
-		$result=self::curlget("https://".$session->school->url.$studyguideItemId,$session->sessionId);
-		return $result;
+		$result=json_decode($result,true);
+		$list=array();
+		foreach($result["Onderdelen"]["Items"] as $items){
+			//Now, let's replace the obvious hyperlinks in the content! Example: <u>\n\\*HYPERLINK \"http://www.youtube.com/watch?v=A0VUsoeT9aM\"Draagbare energie</u> to: <a href="http://www.youtube.com/watch?v=A0VUsoeT9aM">Draagbare energie</a>
+			$replacePattern = '/<u>[^"]*?"([^"]*?)"(.*?)<\/u>/'; //Search for these obvious hyperlinks
+			$replaceWith = '<a href="\\1">\\2</a>'; //Change them to just HTML hyperlinks
+			$newContent = preg_replace($replacePattern, $replaceWith, $items["Omschrijving"]); //Replace that shit
+			$attachmentResult=self::curlget("https://".$session->school->url.$items["Ref"]["Self"],$session->sessionId);
+			$attachmentResult=json_decode($attachmentResult,true); //Let's decode it
+			$attachmentsList=array();
+			foreach($attachmentResult["Bronnen"] as $attachmentItem){ //Look for attachments
+				$type = $attachmentItem["BronSoort"]; //$type==1 = Just a normal attachment, $type == 2 = An assignment, $type == 3 = A website, $type == 4 = A Youtube Video.
+				if($attachmentItem["Uri"] === NULL){$attachmentUrl='https://'.$session->school->url.$attachmentItem["Ref"]["Self"];}elseif(strpos($attachmentItem["Uri"],'YoutubePlayer.aspx?youtubeid=')!== false){$type=4;$youtubeId= explode("=", $attachmentItem["Uri"]);$attachmentUrl='https://www.youtube.com/watch?v='.$youtubeId[1];}elseif(strpos($attachmentItem["Uri"],'/api/leerlingen/')!== false){$type=1;$attachmentUrl=$attachmentItem["Uri"];}else{$type=4;$attachmentUrl=$attachmentItem["Uri"];}
+				$attachmentsList[]=new StudyGuideAttachments($attachmentItem["Naam"],$type,$attachmentUrl);
+			}
+			$list[]=new StudyGuideContent($items["Titel"],$newContent,$attachmentsList);
+		}
+		return $list;
 	}
 	public static function login($school,$username,$password){
 		$sessionId=uniqid();
@@ -162,5 +216,4 @@ function login($school,$username,$password){return Mataphp::login($school,$usern
 function getHomework($session,$fromdate,$todate){return Mataphp::getHomework($session,$fromdate,$todate);}
 function getStudyGuidesList($session){return Mataphp::getStudyGuidesList($session);}
 function getStudyGuideContent($session,$studyguideId){return Mataphp::getStudyGuideContent($session,$studyguideId);}
-function getStudyGuideAttachments($session,$studyguideItemId){return Mataphp::getStudyGuideAttachments($session,$studyguideItemId);}
 ?>
