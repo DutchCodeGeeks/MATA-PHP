@@ -19,15 +19,15 @@ Here are some random notes about the API, not yet structured.
 	- **Properties**: `school`, `userId`, `sessionId`, `realName`.
 	- **Functions**: `__constructor()` mirrors `set()`, `set($school,$userId,$sessionId,$realName)`.
 
-- `StudyGuideList`: holds the data for all Study Guides as a list. Returned by `getStudyGuidesList($session)`.
-	- **Usage**: It is not recommended to access this class directly. You just have to pass it a session to the `getStudyGuidesList()` function.
+- `StudyGuideList`: holds the data for all Study Guides as a list. Returned by `getStudyGuideList($session)`.
+	- **Usage**: It is not recommended to access this class directly. You just have to pass it a session to the `getStudyGuideList()` function.
 	- **Properties**: `title`,`id`,`startDate`,`endDate`,`subject`.
 	- **Functions**: `__constructor()` mirrors `set()`, `set($title,$id,$startDate,$endDate,$subject)`.
 
 - `StudyGuide`: holds the general information for a Study Guide. Returned by `getStudyGuideContent($session,$StudyGuideId)`.
 	- **Usage**: You just have to pass it a correct Study Guide Id and a session to the `getStudyGuideContent()` function.
 	- **Properties**: `id`,`startDate`,`endDate`,`title`,`subject`,`archived`,`content`.
-	- **Functions**: `__constructor()` mirrors `set()`, `set($id,$startDate,$endDate,$title,$subject,$archived,$content )`.
+	- **Functions**: `__constructor()` mirrors `set()`, `set($id,$startDate,$endDate,$title,$subject,$archived,$content)`.
 
 - `StudyGuideContent`: holds the data for all the content items of a Study Guide. Required by `getStudyGuideContent()`.
 	- **Usage**: It is not recommended to access this class directly. You just have to pass it a correct Study Guide Id and a session to the `getStudyGuideContent` function and it will store all the content items and their Attachments.
@@ -52,7 +52,7 @@ Here are some random notes about the API, not yet structured.
 		- `username`: username for login
 		- `password`: password for login
 - `getStudyGuideList($session)`: get all Study Guides as a list.
-	- **Returns**: array of `StudyGuidesList` items:
+	- **Returns**: array of `StudyGuideList` items:
 		- `title`: the title of the Study Guide.
 		- `id`: the id of the Study Guide.
 		- `startDate`: the start date of the Study Guide.
@@ -77,4 +77,4 @@ Here are some random notes about the API, not yet structured.
 						- `url`: the URL of the attachment.
 	- **Parameters**:
 		- `$session`: just the given session you've got from the `login()` function.
-		- `$studyguideId`: the Id of a Study Guide, you could use one from the `getStudyGuidesList($session)` function.
+		- `$studyguideId`: the Id of a Study Guide, you could use one from the `getStudyGuideList($session)` function.
