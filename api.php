@@ -65,7 +65,7 @@ class Homework{
 	}
 }
 
-class StudyGuidesList{
+class StudyGuideList{
 	public $title,$id,$startDate,$endDate,$subject;
 	public function __construct($ti,$i,$sd,$ed,$su){$this->set($ti,$i,$sd,$ed,$su);}
 	public function set($ti,$i,$sd,$ed,$su){
@@ -75,6 +75,21 @@ class StudyGuidesList{
 		$this->endDate=$ed;
 		$this->subject=$su;
 	}
+}
+
+class StudyGuide{
+	public $id,$startDate,$endDate,$title,$subject,$archived,$content;
+	public function __construct($i,$sd,$ed,$ti,$su,$arch,$cont){$this->set($i,$sd,$ed,$ti,$su,$arch,$cont);}
+	public function set($i,$sd,$ed,$ti,$su,$arch,$cont){
+		$this->id=$i;
+		$this->startDate=$sd;
+		$this->endDate=$ed;
+		$this->title=$ti;
+		$this->subject=$su;
+		$this->archived=$arch;
+		$this->content=$cont;
+	}
+
 }
 
 class StudyGuideContent{
@@ -105,7 +120,7 @@ class Mataphp{
 		if($referer){
 			$referer=$referer["scheme"]."://".$referer["host"];
 		} else {
-			throw new \Exception("Mataphp:curlget:invalid_url, an invalid url was passed");
+			//throw new \Exception("Mataphp:curlget:invalid_url, an invalid url was passed");
 		}
 		$ch=curl_init();
 		curl_setopt($ch,CURLOPT_URL,$url);
@@ -125,6 +140,7 @@ class Mataphp{
 		}
 		$result=curl_exec($ch);
 		curl_close($ch);
+		//unlink(_MATA_PHP_API_COOKIE_BASE_NAME.$cookie_id);
 		return $result;
 	}
 	private function encodeURIComponent($str){
@@ -167,23 +183,23 @@ class Mataphp{
 		}
 		return $list;
 	}
-	public static function getStudyGuidesList($session){
+	public static function getStudyGuideList($session){
 		$result=self::curlget('https://'.$session->school->url.'/api/leerlingen/'.$session->userId.'/studiewijzers?$skip=0&$top=50',$session->sessionId);
 		$result=json_decode($result,true);
 		$list=array();
 		foreach($result["Items"] as $items){
-		$startDate=date_create($items["Van"],timezone_open("UTC"));
-		date_timezone_set($startDate,timezone_open(date_default_timezone_get()));
-		$endDate=date_create($items["TotEnMet"],timezone_open("UTC"));
-		date_timezone_set($endDate,timezone_open(date_default_timezone_get()));
-		$list[]=new StudyGuidesList($items["Titel"],$items["Id"],$startDate,$endDate,$items["VakCodes"][0]);
+			$startDate=date_create($items["Van"],timezone_open("UTC"));
+			date_timezone_set($startDate,timezone_open(date_default_timezone_get()));
+			$endDate=date_create($items["TotEnMet"],timezone_open("UTC"));
+			date_timezone_set($endDate,timezone_open(date_default_timezone_get()));
+			$list[]=new StudyGuideList($items["Titel"],$items["Id"],$startDate,$endDate,$items["VakCodes"][0]);
 		}
 		return $list;
 	}
 	public static function getStudyGuideContent($session,$studyguideId){
 		$result=self::curlget("https://".$session->school->url."/api/leerlingen/".$session->userId."/studiewijzers/".$studyguideId,$session->sessionId);
 		$result=json_decode($result,true);
-		$list=array();
+		$contentList=array();
 		foreach($result["Onderdelen"]["Items"] as $items){
 			//Now, let's replace the obvious hyperlinks in the content! Example: <u>\n\\*HYPERLINK \"http://www.youtube.com/watch?v=A0VUsoeT9aM\"Draagbare energie</u> to: <a href="http://www.youtube.com/watch?v=A0VUsoeT9aM">Draagbare energie</a>
 			$replacePattern = '/<u>[^"]*?"([^"]*?)"(.*?)<\/u>/'; //Search for these obvious hyperlinks
@@ -191,14 +207,16 @@ class Mataphp{
 			$newContent = preg_replace($replacePattern, $replaceWith, $items["Omschrijving"]); //Replace that shit
 			$attachmentResult=self::curlget("https://".$session->school->url.$items["Ref"]["Self"],$session->sessionId);
 			$attachmentResult=json_decode($attachmentResult,true); //Let's decode it
-			$attachmentsList=array();
+			$attachmentList=array();
 			foreach($attachmentResult["Bronnen"] as $attachmentItem){ //Look for attachments
 				$type = $attachmentItem["BronSoort"]; //$type==1 = Just a normal attachment, $type == 2 = An assignment, $type == 3 = A website, $type == 4 = A Youtube Video.
-				if($attachmentItem["Uri"] === NULL){$attachmentUrl='https://'.$session->school->url.$attachmentItem["Ref"]["Self"];}elseif(strpos($attachmentItem["Uri"],'YoutubePlayer.aspx?youtubeid=')!== false){$type=4;$youtubeId= explode("=", $attachmentItem["Uri"]);$attachmentUrl='https://www.youtube.com/watch?v='.$youtubeId[1];}elseif(strpos($attachmentItem["Uri"],'/api/leerlingen/')!== false){$type=1;$attachmentUrl=$attachmentItem["Uri"];}else{$type=4;$attachmentUrl=$attachmentItem["Uri"];}
-				$attachmentsList[]=new StudyGuideAttachments($attachmentItem["Naam"],$type,$attachmentUrl);
+				if($attachmentItem["Uri"] === NULL){$attachmentUrl='https://'.$session->school->url.$attachmentItem["Ref"]["Self"];}elseif((strpos($attachmentItem["Uri"],'YoutubePlayer.aspx?youtubeid=')!== false) || (strpos($attachmentItem["Uri"],'youtube.com/watch?v=')!== false)) {$type=4;$youtubeId= explode("=", $attachmentItem["Uri"]);$attachmentUrl='https://www.youtube.com/watch?v='.$youtubeId[1];}elseif(strpos($attachmentItem["Uri"],'/api/leerlingen/')!== false){$type=1;$attachmentUrl=$attachmentItem["Uri"];}else{$type=3;$attachmentUrl=$attachmentItem["Uri"];}
+				$attachmentList[]=new StudyGuideAttachments($attachmentItem["Naam"],$type,$attachmentUrl);
 			}
-			$list[]=new StudyGuideContent($items["Titel"],$newContent,$attachmentsList);
+			$contentList[]=new StudyGuideContent($items["Titel"],$newContent,$attachmentList);
 		}
+		$list=array();
+		$list=new StudyGuide($result["Id"],$result["Van"],$result["TotEnMet"],$result["Titel"],$result["VakCodes"][0],$result["InLeerlingArchief"],$contentList);
 		return $list;
 	}
 	public static function login($school,$username,$password){
@@ -214,6 +232,6 @@ class Mataphp{
 function getSchools($filter){return Mataphp::getSchools($filter);}
 function login($school,$username,$password){return Mataphp::login($school,$username,$password);}
 function getHomework($session,$fromdate,$todate){return Mataphp::getHomework($session,$fromdate,$todate);}
-function getStudyGuidesList($session){return Mataphp::getStudyGuidesList($session);}
+function getStudyGuideList($session){return Mataphp::getStudyGuideList($session);}
 function getStudyGuideContent($session,$studyguideId){return Mataphp::getStudyGuideContent($session,$studyguideId);}
 ?>
