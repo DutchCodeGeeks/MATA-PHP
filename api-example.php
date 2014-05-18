@@ -23,23 +23,22 @@ $password=trim(fgets(STDIN));
 $session=mataphp\login($school,$username,$password);
 var_dump($session);
 var_dump(mataphp\getHomework($session,new DateTime("now"),new DateTime("now +7 day")));
-var_dump(mataphp\getStudyGuidesList($session)); //Get All Study Guides
+var_dump(mataphp\getStudyGuideList($session)); //Get All Study Guides
 
 //Study Guide Content example:
 	$StudyGuideId=421; //!!!*** IMPORTANT TO MAKE IT WORK: Change this Id to a correct StudyGuide Id. You could call one from the StudyGuidesList
-	$StudyGuideContent = (mataphp\getStudyGuideContent($session,$StudyGuideId));
-	$StudyGuideContentResult=json_decode($StudyGuideContent,true);
-	foreach($StudyGuideContentResult as $items){
-		echo('<div><h1>'.$items->title.'</h1>'); 
+	$StudyGuide = (mataphp\getStudyGuideContent($session,$StudyGuideId));
+	foreach($StudyGuide->content as $items){
+		echo('<div><h1'.$items->title.'</h1>');
 		echo'<p>'.$items->content.'</p>';
 		foreach ($items->attachments as $attachmentItem) {
-			if($attachmentItem->type == 1){echo('---Attachment: <a href="'.$attachmentItem->url.'" target="_blank">'.$attachmentItem->title.'</a><br>');
-			}elseif($attachmentItem->type == 2){echo('---Assignment Attachment: <a href="'.$attachmentItem->url.'" target="_blank">'.$attachmentItem->title.'</a><br>');
-			}elseif($attachmentItem->type == 3){echo('---Attachment: <a href="'.$attachmentItem->url.'" target="_blank">'.$attachmentItem->title.'</a><br>');
-			}else{echo('---Youtube Attachment: <a href="'.$attachmentItem->url.'" target="_blank">'.$attachmentItem->title.'</a><br>');
+			if($attachmentItem->type == 1){echo('Attachment <a href="attachment.php?url='.$attachmentItem->url.'&id='.$sessie->sessionId.'">'.$attachmentItem->title.'</a><br>');
+			}elseif($attachmentItem->type == 2){echo('Assignment: <a href="'.$attachmentItem->url.'" target="_blank">'.$attachmentItem->title.'</a><br>');
+			}elseif($attachmentItem->type == 3){echo('URL Link: <a href="'.$attachmentItem->url.'" target="_blank">'.$attachmentItem->title.'</a><br>');
+			}else{echo('YouTube video: <a href="'.$attachmentItem->url.'" target="_blank">'.$attachmentItem->title.'</a><br>');
 			}
-		 }
-		echo'</div>'; 
+		}
+		echo'</div>';
 	}
-				
+
 ?>
