@@ -2,7 +2,7 @@ MATA-PHP
 ========
 PHP class used to retrieve data from schoolmaster's magister, using their own API.
 
-For a C# implementation of the API: https://github.com/lieuwex/MataSharp
+For a C# implementation of the API: https://github.com/DutchCodeGeeks/MataSharp
 
 IRC Channel: irc.geekshed.net (of www.geekshed.net/chat/ for webchat)
              channel #magister
