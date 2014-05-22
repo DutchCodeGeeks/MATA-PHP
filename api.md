@@ -69,12 +69,12 @@ Here are some random notes about the API, not yet structured.
 		- `archived`: if the Study Guide is archived it returns 1 otherwise 0.
 		- `subject`: the subject of the studyguide. NOTE: We don't have currently a list with all possible subjects.
 		- `content`: an array of all the Study Guide's Content items.
-				- `title`: the title of a Study Guide Content item. 
-				- `content`: the content of a Study Guide Content item. May contains fixed hyperlinks in plain HTML format.
-				- `attachments`: array of `StudyGuideAttachments` items:
-						- `title`: the title of the attachment.
-						- `type`: the type of the attachment. 1 = Just a normal attachment, 2 = An assignment, 3 = A website, 4 = A Youtube Video.
-						- `url`: the URL of the attachment.
+		- `title`: the title of a Study Guide Content item. 
+		- `content`: the content of a Study Guide Content item. May contains fixed hyperlinks in plain HTML format.
+		- `attachments`: array of `StudyGuideAttachments` items:
+			- `title`: the title of the attachment.
+			- `type`: the type of the attachment. 1 = Just a normal attachment, 2 = An assignment, 3 = A website, 4 = A Youtube Video.
+			- `url`: the URL of the attachment.
 	- **Parameters**:
 		- `$session`: just the given session you've got from the `login()` function.
 		- `$studyguideId`: the Id of a Study Guide, you could use one from the `getStudyGuideList($session)` function.
