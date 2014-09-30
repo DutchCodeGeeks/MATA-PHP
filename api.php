@@ -210,7 +210,7 @@ class Mataphp{
 			$attachmentList=array();
 			foreach($attachmentResult["Bronnen"] as $attachmentItem){ //Look for attachments
 				$type = $attachmentItem["BronSoort"]; //$type==1 = Just a normal attachment, $type == 2 = An assignment, $type == 3 = A website, $type == 4 = A Youtube Video.
-				if($attachmentItem["Uri"] === NULL){$attachmentUrl='https://'.$session->school->url.$attachmentItem["Ref"]["Self"];}elseif((strpos($attachmentItem["Uri"],'YoutubePlayer.aspx?youtubeid=')!== false) || (strpos($attachmentItem["Uri"],'youtube.com/watch?v=')!== false)) {$type=4;$youtubeId= explode("=", $attachmentItem["Uri"]);$attachmentUrl='https://www.youtube.com/watch?v='.$youtubeId[1];}elseif(strpos($attachmentItem["Uri"],'/api/leerlingen/')!== false){$type=1;$attachmentUrl=$attachmentItem["Uri"];}else{$type=3;$attachmentUrl=$attachmentItem["Uri"];}
+				if($attachmentItem["Uri"] === NULL || $attachmentItem["Uri"] == ""){$attachmentUrl='https://'.$session->school->url.$attachmentItem["Ref"]["Self"];}elseif((strpos($attachmentItem["Uri"],'YoutubePlayer.aspx?youtubeid=')!== false) || (strpos($attachmentItem["Uri"],'youtube.com/watch?v=')!== false)) {$type=4;$youtubeId= explode("=", $attachmentItem["Uri"]);$attachmentUrl='https://www.youtube.com/watch?v='.$youtubeId[1];}elseif(strpos($attachmentItem["Uri"],'/api/leerlingen/')!== false){$type=1;$attachmentUrl=$attachmentItem["Uri"];}else{$type=3;$attachmentUrl=$attachmentItem["Uri"];}
 				$attachmentList[]=new StudyGuideAttachments($attachmentItem["Naam"],$type,$attachmentUrl);
 			}
 			$contentList[]=new StudyGuideContent($items["Titel"],$newContent,$attachmentList);
