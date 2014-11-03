@@ -5,7 +5,7 @@ PHP class used to retrieve data from schoolmaster's magister, using their own AP
 
 For a C# implementation of the API: https://github.com/DutchCodeGeeks/MataSharp
 
-For Magister6 implementation (Node)JS: https://github.com/simplyGits
+For Magister6 implementation (Node)JS: http://simplygits.github.io/MagisterJS/
 
 IRC Channel: irc.geekshed.net (of www.geekshed.net/chat/ for webchat)
              channel #magister
