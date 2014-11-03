@@ -3,6 +3,7 @@ namespace mataphp;
 define("_MATA_PHP_API_COOKIE_BASE_NAME",".mata-php.api.cookie.");
 
 //if we're running on a terminal, let's check for stray cookie files.
+/*
 if(posix_isatty(STDERR)){
 	$files=glob(_MATA_PHP_API_COOKIE_BASE_NAME."*");
 	if(count($files)>0){
@@ -14,6 +15,7 @@ if(posix_isatty(STDERR)){
 		}
 	}
 }
+*/
 
 class School{
 	public $name,$url;
@@ -102,13 +104,56 @@ class StudyGuideContent{
 	}
 }
 
-class StudyGuideAttachments{
+class Attachment{
 	public $title,$type,$url;
 	public function __construct($ti,$ty,$ur){$this->set($ti,$ty,$ur);}
 	public function set($ti,$ty,$ur){
 		$this->title=$ti;
 		$this->type=$ty;
 		$this->url=$ur;
+	}
+}
+
+class AssignmentList{
+	public $title,$id,$subject,$description,$lastDate,$submittedDate;
+	public function __construct($ti,$i,$sub,$desc,$lD,$sD){$this->set($ti,$i,$sub,$desc,$lD,$sD);}
+	public function set($ti,$i,$sub,$desc,$lD,$sD){
+		$this->title = $ti;
+		$this->id = $i;
+		$this->subject = $sub;
+		$this->description = $desc;
+		$this->lastDate = $lD;
+		$this->submittedDate = $sD;
+	}	
+}
+
+class Assignment{
+	public $title,$id,$subject,$description,$teacherName,$lastDate,$submittedDate,$mark,$attachments,$submittedAssignments;
+	public function __construct($ti,$i,$sub,$desc,$tN,$lD,$sD,$m,$at,$sbAs){$this->set($ti,$i,$sub,$desc,$tN,$lD,$sD,$m,$at,$sbAs);}
+	public function set($ti,$i,$sub,$desc,$tN,$lD,$sD,$m,$at,$sbAs){
+		$this->title = $ti;
+		$this->id = $i;
+		$this->subject = $sub;
+		$this->description = $desc;
+		$this->teacherName = $tN;
+		$this->lastDate = $lD;
+		$this->submittedDate = $sD;
+		$this->mark = $m;
+		$this->attachments = $at;
+		$this->submittedAssignments = $sbAs;
+	}
+}
+
+class SubmittedAssignment{
+	public $date,$mark,$noteStudent,$noteTeacher,$attachments,$feedbackAttachments;
+	public function __construct($d,$m,$nS,$nT,$at,$fbAt){$this->set($d,$m,$nS,$nT,$at,$fbAt);}
+	public function set($d,$m,$nS,$nT,$at,$fbAt){
+		$this->date = $d;
+		$this->mark = $m;
+		$this->noteStudent = $nS;
+		$this->noteTeacher = $nT;
+		$this->attachments = $at;
+		$this->feedbackAttachments = $fbAt;
 	}
 }
 
@@ -124,7 +169,9 @@ class Mataphp{
 		}
 		$ch=curl_init();
 		curl_setopt($ch,CURLOPT_URL,$url);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST,FALSE);
 		curl_setopt($ch,CURLOPT_SSL_VERIFYPEER,FALSE);
+		curl_setopt($ch, CURLOPT_SSLVERSION, 3);
 		curl_setopt($ch,CURLOPT_USERAGENT,"Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6");
 		curl_setopt($ch,CURLOPT_TIMEOUT,60);
 		curl_setopt($ch,CURLOPT_FOLLOWLOCATION,1);
@@ -210,8 +257,8 @@ class Mataphp{
 			$attachmentList=array();
 			foreach($attachmentResult["Bronnen"] as $attachmentItem){ //Look for attachments
 				$type = $attachmentItem["BronSoort"]; //$type==1 = Just a normal attachment, $type == 2 = An assignment, $type == 3 = A website, $type == 4 = A Youtube Video.
-				if($attachmentItem["Uri"] === NULL || $attachmentItem["Uri"] == ""){$attachmentUrl='https://'.$session->school->url.$attachmentItem["Ref"]["Self"];}elseif((strpos($attachmentItem["Uri"],'YoutubePlayer.aspx?youtubeid=')!== false) || (strpos($attachmentItem["Uri"],'youtube.com/watch?v=')!== false)) {$type=4;$youtubeId= explode("=", $attachmentItem["Uri"]);$attachmentUrl='https://www.youtube.com/watch?v='.$youtubeId[1];}elseif(strpos($attachmentItem["Uri"],'/api/leerlingen/')!== false){$type=1;$attachmentUrl=$attachmentItem["Uri"];}else{$type=3;$attachmentUrl=$attachmentItem["Uri"];}
-				$attachmentList[]=new StudyGuideAttachments($attachmentItem["Naam"],$type,$attachmentUrl);
+				if($attachmentItem["Uri"] === NULL || $attachmentItem["Uri"] == ""){$attachmentUrl='/studiewijzers/'.$studyguideId.'/onderdelen/'.$items["Id"].'/bijlagen/'.$attachmentItem["Id"];}elseif((strpos($attachmentItem["Uri"],'YoutubePlayer.aspx?youtubeid=')!== false) || (strpos($attachmentItem["Uri"],'youtube.com/watch?v=')!== false)) {$type=4;$youtubeId= explode("=", $attachmentItem["Uri"]);$attachmentUrl='https://www.youtube.com/watch?v='.$youtubeId[1];}elseif(strpos($attachmentItem["Uri"],'/api/leerlingen/')!== false){$type=1;$attachmentUrl=$attachmentUrl='/studiewijzers/'.$getId[0].'/onderdelen/'.$items["Id"].'/bijlagen/'.$attachmentItem["Id"];}else{$type=3;$attachmentUrl=$attachmentItem["Uri"];}
+				$attachmentList[]=new Attachment($attachmentItem["Naam"],$type,$attachmentUrl);
 			}
 			$contentList[]=new StudyGuideContent($items["Titel"],$newContent,$attachmentList);
 		}
@@ -227,6 +274,55 @@ class Mataphp{
 		//var_dump($result); ##DEBUG
 		return new Session($school,$result["GebruikersId"],$sessionId,$result["Naam"]);
 	}
+	public static function getAssignmentList($session){
+		$result=self::curlget('https://'.$session->school->url.'/api/leerlingen/'.$session->userId.'/opdrachten/status/openstaand?$skip=0&$top=20&$orderby=InleverenVoor%20DESC',$session->sessionId);
+		$result=json_decode($result,true);
+		$list = array();
+		foreach($result["Items"] as $item){
+			$lastDate=date_create($item["InleverenVoor"],timezone_open("UTC"));
+			date_timezone_set($lastDate,timezone_open(date_default_timezone_get()));
+			$submittedDate=date_create($item["IngeleverdOp"],timezone_open("UTC"));
+			date_timezone_set($submittedDate,timezone_open(date_default_timezone_get()));
+			$list[]=new AssignmentList($item["Titel"],$item["Id"],$item["Vak"],$item["Omschrijving"],$lastDate,$submittedDate);
+		}
+		return $list;
+	}
+	public static function getAssignment($session,$assignmentId){
+		$result=self::curlget("https://".$session->school->url."/api/leerlingen/".$session->userId."/opdrachten/".$assignmentId,$session->sessionId);
+		$result=json_decode($result,true);
+		$lastDate=date_create($result["InleverenVoor"],timezone_open("UTC"));
+		date_timezone_set($lastDate,timezone_open(date_default_timezone_get()));
+		$submittedDate=date_create($result["IngeleverdOp"],timezone_open("UTC"));
+		date_timezone_set($submittedDate,timezone_open(date_default_timezone_get()));
+		$teachersName = $result["Docenten"][0]["Voornamen"].' '.$result["Docenten"][0]["Tussenvoegsel"].' '.$result["Docenten"][0]["Achternaam"];
+		$attachmentList =  array();
+		foreach($result["Bijlagen"] as $attachmentItem){ //Look for attachments
+			$type = 1; //$type==1 = Just a normal attachment, $type == 2 = An assignment, $type == 3 = A website, $type == 4 = A Youtube Video.
+			$attachmentUrl = '/opdrachten/bijlagen/'.$attachmentItem["Id"];
+			$attachmentList[]=new Attachment($attachmentItem["Naam"],$type,$attachmentUrl);
+		}
+		$submittedAssignmentList=array();
+		foreach($result["VersieNavigatieItems"] as $submittedAssignmentItem){ //Look for attachments
+			$submittedAttachmentResult=self::curlget("https://".$session->school->url.$submittedAssignmentItem["Ref"]["Self"],$session->sessionId);
+			$submittedAttachmentResult=json_decode($submittedAttachmentResult,true); //Let's decode it
+			$submittedAttachmentList=array();
+			foreach($submittedAttachmentResult["LeerlingBijlagen"] as $submittedAttachmentItem){ //Look for attachments
+				$type = 1; //$type==1 = Just a normal attachment, I think you can only upload just a normal attachment.
+				$attachmentUrl = '/opdrachten/bijlagen/Ingeleverd/'.$submittedAttachmentItem["Id"];
+				$submittedAttachmentList[]=new Attachment($submittedAttachmentItem["Naam"],$type,$attachmentUrl);
+			}
+			$feedbackAttachmentList=array();
+			foreach($submittedAttachmentResult["FeedbackBijlagen"] as $feedbackAttachmentItem){ //Look for attachments
+				$type = 1; //$type==1 = Just a normal attachment, I think you can only upload just a normal attachment.
+				$attachmentUrl = '/opdrachten/bijlagen/Ingeleverd/'.$feedbackAttachmentItem["Id"]; //THIS NEED TO BE CHANGED, AS MATA DOESNT WORK WITH FEEDBACKS!!
+				$feedbackAttachmentList[]=new Attachment($feedbackAttachmentItem["Naam"],$type,$attachmentUrl);
+			}
+			$submittedDate=date_create($submittedAttachmentResult["IngeleverdOp"],timezone_open("UTC"));
+			date_timezone_set($submittedDate,timezone_open(date_default_timezone_get()));
+			$submittedAssignmentList[]=new SubmittedAssignment($submittedDate,$submittedAttachmentResult["Beoordeling"],$submittedAttachmentResult["LeerlingOpmerking"],$submittedAttachmentResult["DocentOpmerking"],$submittedAttachmentList,$feedbackAttachmentList);
+		}
+		return new Assignment($result["Titel"],$result["Id"],$result["Vak"],$result["Omschrijving"],$teachersName,$lastDate,$submittedDate,$result["Beoordeling"],$attachmentList,$submittedAssignmentList);
+	}
 }
 
 function getSchools($filter){return Mataphp::getSchools($filter);}
@@ -234,4 +330,6 @@ function login($school,$username,$password){return Mataphp::login($school,$usern
 function getHomework($session,$fromdate,$todate){return Mataphp::getHomework($session,$fromdate,$todate);}
 function getStudyGuideList($session){return Mataphp::getStudyGuideList($session);}
 function getStudyGuideContent($session,$studyguideId){return Mataphp::getStudyGuideContent($session,$studyguideId);}
+function getAssignment($session, $assignmentId){return Mataphp::getAssignment($session, $assignmentId);}
+function getAssignmentList($session){return Mataphp::getAssignmentList($session);}
 ?>
