@@ -317,9 +317,9 @@ class Mataphp{
 				$attachmentUrl = '/opdrachten/bijlagen/Ingeleverd/'.$feedbackAttachmentItem["Id"]; //THIS NEED TO BE CHANGED, AS MATA DOESNT WORK WITH FEEDBACKS!!
 				$feedbackAttachmentList[]=new Attachment($feedbackAttachmentItem["Naam"],$type,$attachmentUrl);
 			}
-			$submittedDate=date_create($submittedAttachmentResult["IngeleverdOp"],timezone_open("UTC"));
-			date_timezone_set($submittedDate,timezone_open(date_default_timezone_get()));
-			$submittedAssignmentList[]=new SubmittedAssignment($submittedDate,$submittedAttachmentResult["Beoordeling"],$submittedAttachmentResult["LeerlingOpmerking"],$submittedAttachmentResult["DocentOpmerking"],$submittedAttachmentList,$feedbackAttachmentList);
+			$submittedAttachmentDate=date_create($submittedAttachmentResult["IngeleverdOp"],timezone_open("UTC"));
+			date_timezone_set($submittedAttachmentDate,timezone_open(date_default_timezone_get()));
+			$submittedAssignmentList[]=new SubmittedAssignment($submittedAttachmentDate,$submittedAttachmentResult["Beoordeling"],$submittedAttachmentResult["LeerlingOpmerking"],$submittedAttachmentResult["DocentOpmerking"],$submittedAttachmentList,$feedbackAttachmentList);
 		}
 		return new Assignment($result["Titel"],$result["Id"],$result["Vak"],$result["Omschrijving"],$teachersName,$lastDate,$submittedDate,$result["Beoordeling"],$attachmentList,$submittedAssignmentList);
 	}
