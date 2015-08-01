@@ -7,8 +7,8 @@ For a C# implementation of the API: https://github.com/DutchCodeGeeks/MataSharp
 
 For Magister6 implementation (Node)JS: http://simplygits.github.io/MagisterJS/
 
-IRC Channel: irc.geekshed.net (of www.geekshed.net/chat/ for webchat)
-             channel #magister
+IRC Channel: irc.freenode.net (of http://webchat.freenode.net?channels=%23%23magister/ for webchat)
+             channel ##magister
 
 For API documentation: https://github.com/DutchCodeGeeks/MATA-PHP/blob/master/api.md
 
